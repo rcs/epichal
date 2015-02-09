@@ -1,5 +1,6 @@
 'use strict';
 var Chain = require('./chain');
+var async = require('async');
 
 
 function Model(options) {
@@ -16,37 +17,60 @@ function Model(options) {
 }
 
 // Take a line of input to learn
-Model.prototype.learn = function(input) {
+Model.prototype.learn = function(input, cb) {
   var tokenBuckets = this.tokenizer(input);
-  this.strategy(tokenBuckets).forEach(function(observation) {
-    this.chain.learn(observation.context, observation.observed);
-  }.bind(this));
+  async.each(this.strategy(tokenBuckets), function(observation, next) {
+      this.chain.learn(observation.context, observation.observed, next);
+    }.bind(this),
+    function(err) {
+      cb(err);
+    }
+  );
 };
 
-Model.prototype.clear = function() {
-  return this.chain.clear();
+Model.prototype.clear = function(cb) {
+  return this.chain.clear(cb);
 };
 
-Model.prototype.pick = function(context) {
-  return this.chain.pick(context);
+Model.prototype.pick = function(context, cb) {
+  return this.chain.pick(context, cb);
 };
 
-Model.prototype.walk = function(context,keywords) {
+Model.prototype.walk = function(context,keywords, cb) {
   var results = [];
   var localContext = context.slice();
   var next;
-  do {
-    // TODO remove found keyword?
-    next = this.bestNext(this.chain.pickMulti(localContext,10),keywords);
-    if( typeof next === 'undefined' ) {
-      return;
+
+  if( typeof keywords === 'function' ) {
+    cb = keywords;
+    keywords = [];
+  }
+  async.doWhilst(
+    function(cb) {
+      this.chain.pickMulti(localContext, 10, function(err,res) {
+        next = this.bestNext(res, keywords);
+        // We broke.
+        if( typeof next === 'undefined' ) {
+          return cb(true);
+        }
+        // We hit the end
+        if( next === '<fence>') {
+          return cb();
+        }
+        results.push(next);
+        localContext = [localContext[1], next];
+        cb();
+      }.bind(this));
+    }.bind(this),
+    function() { return next !== '<fence>'; },
+    function(err) {
+      if( err ) {
+        cb(null, undefined);
+      } else {
+        cb( null, results );
+      }
     }
-    if( next === '<fence>' ) {
-      return results;
-    }
-    results.push(next);
-    localContext = [localContext[1], next];
-  } while(next !== '<fence>');
+  );
 };
 
 Model.prototype.bestNext = function(possibles, keywords) {
@@ -62,11 +86,12 @@ Model.prototype.bestNext = function(possibles, keywords) {
   return matched ? matched : possibles[0];
 };
 
-Model.prototype.uncertainty = function(context) {
-  return this.chain.uncertainty(context);
+Model.prototype.uncertainty = function(context, cb) {
+  return this.chain.uncertainty(context, cb);
 };
-Model.prototype.surprise = function(context, seen) {
-  return this.chain.surprise(context, seen);
+
+Model.prototype.surprise = function(context, seen, cb) {
+  return this.chain.surprise(context, seen, cb);
 };
 
 

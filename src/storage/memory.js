@@ -1,6 +1,7 @@
 'use strict';
 var _ = require('underscore');
 var util = require('../util');
+var async = require('async');
 
 var cache = {};
 
@@ -10,7 +11,7 @@ var cache = {};
 // @arg {Object} context - the context we're learning a prediction for
 // @arg {string} next - the succeeding element to learn
 // @returns
-function learn(modelName, context, next) {
+function learn(modelName, context, next, cb) {
   var contextKey = JSON.stringify(context);
   if( !cache[modelName] ) {
     cache[modelName] = {};
@@ -24,6 +25,7 @@ function learn(modelName, context, next) {
   } else {
     cache[modelName][contextKey][next] += 1;
   }
+  if( cb ) { cb(); }
 }
 
 // Pick an observation from a model, weighted by learnings
@@ -32,17 +34,17 @@ function learn(modelName, context, next) {
 // @arg {Object] context - the context for the prediction
 //
 // @returns {String}
-function pick(modelName, context) {
+function pick(modelName, context, cb) {
   var contextKey = JSON.stringify(context);
   if( !cache[modelName] || !cache[modelName][contextKey] ) {
-    return;
+    return cb(null, undefined);
   }
 
   // Total is the number of things we've seen
   var total = util.sum(_.values(cache[modelName][contextKey]));
   var seen = Object.keys(cache[modelName][contextKey]);
   if( seen.length < 1 ) {
-    return;
+    return cb(null, null);
   }
   // Choose a random up to total
   var target = Math.floor(Math.random()*total);
@@ -50,7 +52,7 @@ function pick(modelName, context) {
   for( var i = 0; i < seen.length; i++ ) {
     acc += cache[modelName][contextKey][seen[i]];
     if( acc > target ) {
-      return seen[i];
+      return cb(null, seen[i]);
     }
   }
   throw new Error('something went wrong while finding a sample -- ' +
@@ -68,15 +70,17 @@ function pick(modelName, context) {
 // @arg {Number} limit - the number of picks to return
 //
 // @returns {String}
-function pickMulti( modelName, context, limit ) {
-  var results = [];
-  if( typeof limit === 'undefined' ) {
+function pickMulti( modelName, context, limit, cb ) {
+  if( typeof limit === 'function' ) {
+    cb = limit;
     limit = 1;
   }
-  for( var i = 0; i < limit; i++ ) {
-    results.push(pick(modelName,context));
-  }
-  return results;
+  async.times(limit, function(n, next) {
+    pick(modelName, context, next);
+  }, function(err,results) {
+    cb(err, results);
+  });
+
 }
 // The count of learnings for a context
 //
@@ -84,28 +88,29 @@ function pickMulti( modelName, context, limit ) {
 // @arg {Object} - the context to count
 //
 // @returns {int}
-function count(modelName, context) {
+function count(modelName, context, cb) {
   var contextKey = JSON.stringify(context);
   if( !cache[modelName] || !cache[modelName][contextKey] ) {
-    return 0;
+    return cb(null,0);
   }
-  return util.sum(_.values(cache[modelName][contextKey]));
+  return cb(null, util.sum(_.values(cache[modelName][contextKey])));
 }
 
-function uncertainty(modelName, context) {
+function uncertainty(modelName, context,cb) {
   var contextKey = JSON.stringify(context);
 
-  return util.uncertainty(cache[modelName][contextKey]);
+  return cb(null, util.uncertainty(cache[modelName][contextKey]));
 }
-function surprise(modelName, context, seen) {
+function surprise(modelName, context, seen, cb) {
   var contextKey = JSON.stringify(context);
 
-  return util.surprise(cache[modelName][contextKey], seen);
+  return cb(null, util.surprise(cache[modelName][contextKey], seen));
 }
 
 
-function clear(modelName) {
+function clear(modelName,cb) {
   cache[modelName] = {};
+  if( cb ) { cb(null,null); }
 }
 module.exports = {
   learn: learn,

@@ -11,24 +11,38 @@ describe('MegaHAL', function() {
   it('constructs with new', function() {
     expect(new MegaHAL()).to.be.instanceOf(MegaHAL);
   });
-  it('can learn', function() {
+  it('can learn', function(done) {
     var megahal = MegaHAL();
-    expect(function(){megahal.learn('foo');}).to.not.throw(Error);
+    megahal.learn('foo', function() {
+      expect(1).to.equal(1);
+      done();
+    });
   });
-  it('can clear', function() {
+  it('can clear', function(done) {
     var megahal = MegaHAL();
-    expect(function(){megahal.clear();}).to.not.throw(Error);
+    megahal.clear(function() {
+      expect(1).to.equal(1);
+      done();
+    });
   });
-  it('can reply even if there is nothing there', function() {
+  it('can reply even if there is nothing there', function(done) {
+    var megahal = MegaHAL();
+    megahal.clear(function() {
+      megahal.reply('', 'blah', function(err, res) {
+        expect(res).to.equal('blah');
+        done();
+      });
+    });
+  });
+  it('can reply', function(done) {
     var megahal = MegaHAL();
     megahal.clear();
-    expect(megahal.reply('', 'blah')).to.equal('blah');
-  });
-  it('can reply', function() {
-    var megahal = MegaHAL();
-    megahal.clear();
-    megahal.learn('fancy free-and !fabulous');
-    expect(megahal.reply('')).to.equal('fancy free-and !fabulous');
+    megahal.learn('fancy free-and !fabulous', function() {
+      megahal.reply('', function(err, res) {
+        expect(res).to.equal('fancy free-and !fabulous');
+        done();
+      });
+    });
   });
 
 });
