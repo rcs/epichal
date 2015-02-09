@@ -12,7 +12,7 @@ function Chain(options) {
   self.name = options.name;
 
   ['learn', 'pick', 'pickMulti', 'count', 'clear', 'uncertainty', 'surprise'].forEach( function(methodName) {
-    self[methodName] = _.bind(self.storage[methodName], self, self.name);
+    self[methodName] = _.bind(self.storage[methodName], self.storage, self.name);
   });
 
   return self;

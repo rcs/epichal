@@ -1,12 +1,11 @@
-/* global describe, it, beforeEach */
+/* global describe */
 'use strict';
 var chai = require('chai');
-var expect = chai.expect;
-var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 var memoryStorage = require('../../src/storage/memory');
-var async = require('async');
 
-require('./_abstract')(memoryStorage);
+describe('storage/memory', function() {
+  require('./_abstract')(memoryStorage);
+});
 

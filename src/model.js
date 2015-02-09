@@ -18,10 +18,11 @@ function Model(options) {
 
 // Take a line of input to learn
 Model.prototype.learn = function(input, cb) {
-  var tokenBuckets = this.tokenizer(input);
-  async.each(this.strategy(tokenBuckets), function(observation, next) {
-      this.chain.learn(observation.context, observation.observed, next);
-    }.bind(this),
+  var self = this;
+  var tokenBuckets = self.tokenizer(input);
+  async.each(self.strategy(tokenBuckets), function(observation, next) {
+      self.chain.learn(observation.context, observation.observed, next);
+    },
     function(err) {
       cb(err);
     }

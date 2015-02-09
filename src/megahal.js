@@ -205,9 +205,10 @@ MegaHAL.prototype.generateReply = function(keywords, cb) {
         }
       }, function( err, results ) {
         if( err ) { return cb(err); }
-        var combined = results.backward.slice().reverse()
+
+        var combined = (results.backward || []).slice().reverse()
           .concat(glue)
-          .concat(results.forward);
+          .concat(results.forward || []);
 
         return cb( null, combined );
 
