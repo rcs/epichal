@@ -26,7 +26,8 @@ module.exports = function abstractStorageTest(storageAdapter) {
         function(cb){ storageAdapter.learn('modelName', ['a','c'], 'qux', cb); },
         function(cb){ storageAdapter.learn('modelName', ['a','c'], 'qux', cb); },
         function(cb){ storageAdapter.learn('modelName', ['a','c'], 'qux', cb); },
-        function(cb){ storageAdapter.learn('modelName', ['a','c'], 'qux', cb); },
+        function(cb){ storageAdapter.learn('modelName', ['a','d'], 'foo', cb); },
+        function(cb){ storageAdapter.learn('modelName', ['a','d'], 'bar', cb); },
         ], function() {
           done();
         });
@@ -81,6 +82,13 @@ module.exports = function abstractStorageTest(storageAdapter) {
         done();
       });
     });
+    it( 'calculates surprise', function(done) {
+      storageAdapter.surprise('modelName', ['a', 'c'], 'baz', function(err, res) {
+        expect(res).to.equal(2);
+        done();
+      });
+    });
+
     //describe.skip('returns picks in about the right ratio', function(done) {
       //var predict;
       //var counts = {

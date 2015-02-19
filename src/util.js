@@ -28,26 +28,6 @@ function sum(arr) {
 }
 
 
-// Measure the amount of uncertainy when picking an item ar random from a mapping
-//
-// @arg {mapping{String,Number}} weights = The object to measure. Keys are the
-//      possible responses, values are the weight
-function uncertainty(weights) {
-  if( typeof weights === 'undefined' ) {
-    return;
-  }
-  var values = _.values(weights);
-
-  var totalSeen = sum(values);
-  if( totalSeen < 1 ) {
-    return;
-  }
-  return _.reduce(values, function(acc, count) {
-    var freq = count/totalSeen;
-    return acc - freq*Math.log(freq)/Math.LN2;
-  }, 0);
-}
-
 // measure how surprising it is to see something given a set of weights
 // @arg {mapping{String,Number}} weights = The object to measure. Keys are the
 //      possible responses, values are the weight
@@ -63,7 +43,6 @@ function surprise(weights, seen) {
 
 module.exports = {
   mergeModels: mergeModels,
-  uncertainty: uncertainty,
   surprise: surprise,
   sum: sum
 };

@@ -38,10 +38,6 @@ describe('Chain', function() {
           expect(res).to.equal(0);
           next();
         }); },
-        function(next){ chain.uncertainty('foo', function(err,res) {
-          expect(res).to.equal(0);
-          next();
-        }); },
         function(next){ chain.pickMulti('foo',2, function(err,res) {
           expect(res).to.deep.equal(['bar','bar']);
           next();
@@ -65,7 +61,6 @@ describe('Chain', function() {
       count: function(){},
       clear: function(){},
       surprise: function(){},
-      uncertainty: function(){}
     };
     var chain = Chain({storage: storage, name: 'foo'});
     chain.learn('llama');

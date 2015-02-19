@@ -9,13 +9,13 @@ function RedisStorage(options) {
     prefix: 'node-megahal-redis'
   });
 
-  if( !options.client && (!options.port || !options.hostname) ) {
-    throw new Error('Client or port/hostname required');
+  if( !options.client ) {
+    throw new Error('Redis client required');
   }
 
   self.prefix = options.prefix;
   self.client = options.client;
-  ['clear', 'surprise', 'uncertainty', 'count', 'pickMulti', 'pick', 'learn'].forEach(function(m) {
+  ['clear', 'surprise', 'count', 'pickMulti', 'pick', 'learn'].forEach(function(m) {
     self[m].bind(self);
   });
 
@@ -54,6 +54,7 @@ function intifyResponse(res) {
 // @returns {String}
 RedisStorage.prototype.pick = function(modelName, context, cb) {
   this.client.hgetall(this.keyName(modelName,context), function(err,res) {
+    /* istanbul ignore if */ if( err ) { return cb(err); }
     if( res === null ) {
       return cb(null, undefined);
     }
@@ -62,18 +63,19 @@ RedisStorage.prototype.pick = function(modelName, context, cb) {
     // Total is the number of things we've seen
     var total = util.sum(_.values(weights));
     var weightKeys = Object.keys(weights);
-    if( weightKeys.length < 1 ) {
-      return cb(null, null);
-    }
+
     // Choose a random up to total
     var target = Math.floor(Math.random()*total);
     var acc = 0;
     for( var i = 0; i < weightKeys.length; i++ ) {
       acc += weights[weightKeys[i]];
+      /* istanbul ignore else */
       if( acc > target ) {
         return cb(null, weightKeys[i]);
       }
     }
+
+    /* istanbul ignore next */
     throw new Error('something went wrong while finding a sample -- ' +
                   JSON.stringify(
                     {target: target, total: total, weights: weights},
@@ -111,30 +113,28 @@ RedisStorage.prototype.pickMulti = function( modelName, context, limit, cb ) {
 // @returns {int}
 RedisStorage.prototype.count = function(modelName, context, cb) {
   this.client.hgetall(this.keyName(modelName,context), function(err,res) {
+    /* istanbul ignore if */ if( err ) { return cb(err); }
     var weights = intifyResponse(res);
     cb( null, util.sum(_.values(weights)));
   });
 
 };
 
-RedisStorage.prototype.uncertainty = function(modelName, context,cb) {
-  this.client.hgetall(this.keyName(modelName,context), function(err,res) {
-    var weights = intifyResponse(res);
-    cb( null, util.uncertainty(_.values(weights)));
-  });
-};
-
 RedisStorage.prototype.surprise = function(modelName, context, seen, cb) {
   this.client.hgetall(this.keyName(modelName,context), function(err,res) {
+    /* istanbul ignore if */ if( err ) { return cb(err); }
+
     var weights = intifyResponse(res);
-    cb( null, util.surprise(_.values(weights), seen));
+    cb( null, util.surprise(weights, seen));
   });
 };
 
 RedisStorage.prototype.clear = function(modelName,cb) {
   var self = this;
   self.client.keys([self.prefix, modelName, '*'].join(':'), function(err,res) {
+    /* istanbul ignore if */ if( err ) { return cb(err); }
     self.client.del(res, function(err,res) {
+      /* istanbul ignore if */ if( err ) { return cb(err); }
       cb(err,res);
     });
   });

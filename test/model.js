@@ -39,6 +39,17 @@ describe('Model', function() {
     });
   });
 
+  it('returns undefined for things it hasn\'t seen', function(done) {
+    var model = Model({name: 'emptyPick'});
+    model.learn('one two three', function() {
+      model.pick(['NOT', 'IN'], function(err,res) {
+        expect(res).to.equal(undefined);
+        done();
+      });
+    });
+
+  });
+
   it('prioritizes things matching keywords', function() {
     var model = Model({name: 'foo'});
     expect(model.bestNext(['one','two','three'], ['two'])).to.equal('two');
@@ -48,23 +59,19 @@ describe('Model', function() {
 
     expect(model.bestNext(['one','two','three'], ['notinit'])).to.equal('one');
   });
+  it('returns things when keywords are empty', function() {
+    var model = Model({name: 'foo'});
+
+    expect(model.bestNext(['one','two','three'] )).to.equal('one');
+  });
+
   it('handles statistic measures', function(done) {
     var model = Model({name: 'foo'});
     model.learn('one two three', function() {
-      async.series([
-        function(next) {
-          model.uncertainty(['ONE','TWO'], function(err,res) {
-            expect(res).to.equal(0);
-            next();
-          });
-        },
-        function(next) {
-          model.surprise(['ONE','TWO'],'THREE', function(err,res) {
-            expect(res).to.equal(0);
-            next();
-          });
-        }
-      ], function() { done(); });
+      model.surprise(['ONE','TWO'],'THREE', function(err,res) {
+        expect(res).to.equal(0);
+        done();
+      });
     });
   });
 });

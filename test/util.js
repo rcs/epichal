@@ -22,22 +22,6 @@ describe('sum', function() {
   });
 });
 
-describe('uncertainty', function() {
-  it('has no uncertainty for an empty mapping', function() {
-    expect(util.uncertainty({})).to.equal(undefined);
-  });
-  it('has zero uncertainty for a single response', function() {
-    expect(util.uncertainty({'a': 1})).to.equal(0);
-  });
-  it('has max uncertainty for a uniform distribution', function() {
-    var weights = {};
-    for( var i = 0; i < 256; i++ ) {
-      weights[i] = 1;
-    }
-    expect(util.uncertainty(weights)).to.equal(8);
-  });
-});
-
 describe('surprise', function() {
   it('has no surprise for an unseen observation', function() {
     expect(util.surprise({},'llama')).to.equal(undefined);

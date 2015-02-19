@@ -3,6 +3,8 @@ var Greetings = require('./words/greetings');
 var Antonyms = require('./words/antonyms');
 var Banned = require('./words/banned');
 var Auxiliary = require('./words/auxiliary');
+var tokenize = require('./tokenize').tokenize;
+
 
 // Get an array of interesting keywords
 //
@@ -15,9 +17,9 @@ function extract(norms) {
   }
   return norms.reduce(function(acc, norm) {
     if( norm.match(/^[0-9]/ ) ){
-      //
+      return acc;
     } else if( Banned[norm] ) {
-      //
+      return acc;
     } else if( Antonyms[norm] ) {
       acc.push(Antonyms[norm]);
     } else {
@@ -27,5 +29,17 @@ function extract(norms) {
   }, []);
 }
 
+function interestingWords(input) {
+  var inputTokens = tokenize(input);
+  return extract(inputTokens.normalized).filter(function(keyword) {
+    return !Auxiliary[keyword];
+  });
 
-module.exports = {extract: extract, Auxiliary: Auxiliary};
+}
+
+
+module.exports = {
+  extract: extract,
+  interestingWords: interestingWords,
+  Auxiliary: Auxiliary
+};

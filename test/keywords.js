@@ -20,6 +20,11 @@ describe('keywords', function() {
       extract(['1FOREVER', 'TWO'])
     ).to.deep.equal(['TWO']);
   });
+  it('ignores banned words', function() {
+    expect(
+      extract(['ONE', 'ABILITY'])
+    ).to.deep.equal(['ONE']);
+  });
   it('returns some greetings if nothing else is given', function() {
     expect(
       extract()
