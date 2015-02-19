@@ -90,7 +90,7 @@ MegaHAL.prototype.models = function() {
  * Calls back with a string reply or `undefined` if one couldn't be generated
  */
 MegaHAL.prototype.reply = function(input, cb) {
-  var interestingWords = input ? Keywords.interestingWords(input) : [];
+  var interestingWords = Keywords.interestingWords(input);
 
   // We try to generate 10 different phrases. We start the generation off each
   // phrase off with a selection of keywords from the input, and an empty set.
