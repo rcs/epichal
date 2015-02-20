@@ -29,7 +29,11 @@ function compoundWords(tokens) {
 //
 function tokenizeInput(input) {
   if( !input ) {
-    return [];
+    return {
+      punctuation: [],
+      words: [],
+      normalized: []
+    };
   }
   var tokens = input.split(/\b/);
   // Make sure we start with a non-word
