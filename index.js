@@ -1,1 +1,1 @@
-module.exports = require('./src/megahal');
+module.exports = require('./src/epichal');

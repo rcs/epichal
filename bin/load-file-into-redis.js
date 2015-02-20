@@ -1,5 +1,5 @@
 'use strict';
-var MegaHAL = require('./megahal');
+var EpicHAL = require('./epichal');
 var Url = require('url');
 var Redis = require('redis');
 
@@ -20,7 +20,7 @@ if (info.auth) {
     client.auth(info.auth.split(':')[1]);
 }
 
-var mh = MegaHAL({
+var eh = EpicHAL({
   storage: require('./storage/redis')({
     client: client
   })
@@ -32,5 +32,5 @@ lineReader.eachLine(process.argv[2], function(line,last,cb) {
   if( (counter % 100) === 0) {
     console.error(counter);
   }
-  mh.learn(line, cb);
+  eh.learn(line, cb);
 });

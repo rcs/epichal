@@ -1,7 +1,7 @@
 {
-  "name": "node-megahal",
+  "name": "node-epichal",
   "version": "0.0.1",
-  "description": "Port of MegaHAL to JS",
+  "description": "A conversation generator for JS. Heavily inspired by MegaHAL",
   "main": "index.js",
   "scripts": {
     "test": "\"./node_modules/.bin/istanbul\" --include-all-sources cover \"./node_modules/mocha/bin/_mocha\""
@@ -9,7 +9,7 @@
   "author": "Ryan Sorensen <rcsorensen@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "http://github.com/rcs/node-megahal.git"
+    "url": "http://github.com/rcs/epichal.git"
   },
   "license": "MIT",
   "dependencies": {

@@ -6,7 +6,7 @@ var async = require('async');
 function RedisStorage(options) {
   var self = this instanceof RedisStorage ? this : Object.create(RedisStorage.prototype);
   options = _.defaults( options || {}, {
-    prefix: 'node-megahal-redis'
+    prefix: 'epichal-redis'
   });
 
   if( !options.client ) {

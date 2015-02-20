@@ -2,7 +2,7 @@
 'use strict';
 var chai = require('chai');
 var expect = chai.expect;
-var MegaHAL = require('../src/megahal');
+var EpicHAL = require('../src/epichal');
 var async = require('async');
 
 function throwError() {
@@ -16,41 +16,41 @@ var ErrorStorage = {};
   ErrorStorage[methodName] = throwError;
 });
 
-describe('MegaHAL', function() {
+describe('EpicHAL', function() {
   it('constructs', function() {
-    expect(MegaHAL({errorResponse: 'blah'})).to.be.instanceOf(MegaHAL);
+    expect(EpicHAL({errorResponse: 'blah'})).to.be.instanceOf(EpicHAL);
   });
   it('constructs with new', function() {
-    expect(new MegaHAL()).to.be.instanceOf(MegaHAL);
+    expect(new EpicHAL()).to.be.instanceOf(EpicHAL);
   });
   it('can learn', function(done) {
-    var megahal = MegaHAL();
-    megahal.learn('foo', function() {
+    var epichal = EpicHAL();
+    epichal.learn('foo', function() {
       expect(1).to.equal(1);
       done();
     });
   });
   it('can clear', function(done) {
-    var megahal = MegaHAL();
-    megahal.clear(function() {
+    var epichal = EpicHAL();
+    epichal.clear(function() {
       expect(1).to.equal(1);
       done();
     });
   });
   it('returns undefined if it can\'t come up with a reply', function(done) {
-    var megahal = MegaHAL();
-    megahal.clear(function() {
-      megahal.reply('', function(err, res) {
+    var epichal = EpicHAL();
+    epichal.clear(function() {
+      epichal.reply('', function(err, res) {
         expect(res).to.equal(undefined);
         done();
       });
     });
   });
   it('can reply', function(done) {
-    var megahal = MegaHAL();
-    megahal.clear(function() {
-      megahal.learn('fancy free-and !fabulous', function() {
-        megahal.reply('', function(err, res) {
+    var epichal = EpicHAL();
+    epichal.clear(function() {
+      epichal.learn('fancy free-and !fabulous', function() {
+        epichal.reply('', function(err, res) {
           expect(res).to.equal('fancy free-and !fabulous');
           done();
         });
@@ -58,10 +58,10 @@ describe('MegaHAL', function() {
     });
   });
   it('can reply to undefined', function(done) {
-    var megahal = MegaHAL();
-    megahal.clear(function() {
-      megahal.learn('fancy free-and !fabulous', function() {
-        megahal.reply(undefined,  function(err, res) {
+    var epichal = EpicHAL();
+    epichal.clear(function() {
+      epichal.learn('fancy free-and !fabulous', function() {
+        epichal.reply(undefined,  function(err, res) {
           expect(res).to.equal('fancy free-and !fabulous');
           done();
         });
@@ -69,11 +69,11 @@ describe('MegaHAL', function() {
     });
   });
   it('can reply reasonably after learning some things', function(done) {
-    var megahal = MegaHAL();
-    megahal.clear(function() {
+    var epichal = EpicHAL();
+    epichal.clear(function() {
       var phrases = ['one two three', 'apple strawberry. banana'];
-      async.map(phrases, megahal.learn.bind(megahal), function() {
-        megahal.reply('strawberry', function(err, res) {
+      async.map(phrases, epichal.learn.bind(epichal), function() {
+        epichal.reply('strawberry', function(err, res) {
           expect(res).to.equal('apple strawberry. banana');
           done();
         });
@@ -83,8 +83,8 @@ describe('MegaHAL', function() {
     });
   });
   it('propagates errors up when something bad has happened', function(done) {
-    var megahal = MegaHAL({storage: ErrorStorage});
-    megahal.learn('things', function(err) {
+    var epichal = EpicHAL({storage: ErrorStorage});
+    epichal.learn('things', function(err) {
       expect(err).to.exist();
       expect(err.name).to.equal('StubError');
       done();
@@ -93,8 +93,8 @@ describe('MegaHAL', function() {
 
   describe('does some basic validation on arguments for', function() {
     it('scoreUtterance', function(done) {
-      var megahal = MegaHAL();
-      megahal.scoreUtterance([], [], function(err, res) {
+      var epichal = EpicHAL();
+      epichal.scoreUtterance([], [], function(err, res) {
         expect(res).to.equal(0);
         done();
       });
@@ -102,24 +102,24 @@ describe('MegaHAL', function() {
   });
 
   it('scores utterances', function(done) {
-    var megahal = MegaHAL();
+    var epichal = EpicHAL();
     async.series([
-      megahal.learn.bind(megahal, 'one two three four foo'),
-      megahal.learn.bind(megahal, 'one two three four baz'),
+      epichal.learn.bind(epichal, 'one two three four foo'),
+      epichal.learn.bind(epichal, 'one two three four baz'),
     ], function() {
-      megahal.scoreUtterance(['THREE', 'FOUR', 'BAZ'], ['THREE', 'FOUR', 'BAZ'],  function(err, res) {
+      epichal.scoreUtterance(['THREE', 'FOUR', 'BAZ'], ['THREE', 'FOUR', 'BAZ'],  function(err, res) {
         expect(res).to.equal(2);
         done();
       });
     });
   });
   it('reduces score against really long phrase', function(done) {
-    var megahal = MegaHAL();
+    var epichal = EpicHAL();
     async.series([
-      megahal.learn.bind(megahal, 'one two three four foo'),
-      megahal.learn.bind(megahal, 'one two three four baz'),
+      epichal.learn.bind(epichal, 'one two three four foo'),
+      epichal.learn.bind(epichal, 'one two three four baz'),
     ], function() {
-      megahal.scoreUtterance(
+      epichal.scoreUtterance(
         ['THREE', 'FOUR', 'BAZ'],
         [ 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
           'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
@@ -133,12 +133,12 @@ describe('MegaHAL', function() {
     });
   });
   it('returns undefined when it can\'t generate a good seed', function(done) {
-    var megahal = MegaHAL();
+    var epichal = EpicHAL();
     async.series([
-      megahal.learn.bind(megahal, 'one two three four foo'),
-      megahal.learn.bind(megahal, 'one two three four baz'),
+      epichal.learn.bind(epichal, 'one two three four foo'),
+      epichal.learn.bind(epichal, 'one two three four baz'),
     ], function() {
-      megahal.seedFromKeywords(['APPLE', 'BANANA'], function(err,res) {
+      epichal.seedFromKeywords(['APPLE', 'BANANA'], function(err,res) {
         expect(res).to.equal(undefined);
         done();
       });
@@ -146,12 +146,12 @@ describe('MegaHAL', function() {
   });
 
   it('returns the seed when it can\'t walk from it', function(done) {
-    var megahal = MegaHAL();
+    var epichal = EpicHAL();
     async.series([
-      megahal.learn.bind(megahal, 'one two three'),
-      megahal.learn.bind(megahal, 'ONE Two three'),
+      epichal.learn.bind(epichal, 'one two three'),
+      epichal.learn.bind(epichal, 'ONE Two three'),
     ], function() {
-      megahal.phraseFromSeed(['APPLE'], ['APPLE', 'BANANA'], function(err,res) {
+      epichal.phraseFromSeed(['APPLE'], ['APPLE', 'BANANA'], function(err,res) {
         expect(res).to.deep.equal(['APPLE', 'BANANA']);
         done();
       });

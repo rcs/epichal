@@ -26,14 +26,14 @@ var tokenize = require('./tokenize').tokenize;
 
 
 /**
- * MegaHAL - 
+ * EpicHAL - 
  * @constructor
  */
-function MegaHAL(options) {
+function EpicHAL(options) {
   if( typeof options === 'undefined' ) {
     options = {};
   }
-  var self = this instanceof MegaHAL ? this : Object.create(MegaHAL.prototype);
+  var self = this instanceof EpicHAL ? this : Object.create(EpicHAL.prototype);
 
   self.forward  = new Model({
     name: 'forward',
@@ -72,7 +72,7 @@ function MegaHAL(options) {
  *
  * Optionally calls back with nothing when finished
  */
-MegaHAL.prototype.learn = function(input, cb) {
+EpicHAL.prototype.learn = function(input, cb) {
   async.each(this.models(), function(model,cb) {
     model.learn(input, cb);
   }, function(err) {
@@ -86,7 +86,7 @@ MegaHAL.prototype.learn = function(input, cb) {
  *
  * Optionally calls back with nothing when finished
  */
-MegaHAL.prototype.clear = function(cb) {
+EpicHAL.prototype.clear = function(cb) {
   async.each(this.models(), function(model, cb){
     model.clear(cb);
   }, function(err) {
@@ -96,9 +96,9 @@ MegaHAL.prototype.clear = function(cb) {
 };
 
 /**
- * Array of all models involved in MegaHAL
+ * Array of all models involved in EpicHAL
  */
-MegaHAL.prototype.models = function() {
+EpicHAL.prototype.models = function() {
   return [this.forward, this.backward, this.originalCase, this.punc, this.seed];
 };
 
@@ -109,7 +109,7 @@ MegaHAL.prototype.models = function() {
  *
  * Calls back with a string reply or `undefined` if one couldn't be generated
  */
-MegaHAL.prototype.reply = function(input, cb) {
+EpicHAL.prototype.reply = function(input, cb) {
   var interestingWords = Keywords.interestingWords(input || '');
   var inputNorms = tokenize(input || '').normalized;
 
@@ -249,7 +249,7 @@ function _scoreTrigramsForModel(model, trigrams, interestingWords, cb ) {
  *
  * Calls back with a numeric score
  */
-MegaHAL.prototype.scoreUtterance = function(interestingWords, norms, cb) {
+EpicHAL.prototype.scoreUtterance = function(interestingWords, norms, cb) {
   var self = this;
 
   if( typeof norms === 'undefined' || norms.length === 0 ) {
@@ -304,7 +304,7 @@ MegaHAL.prototype.scoreUtterance = function(interestingWords, norms, cb) {
  * Calls back with a bigram (array) that includes a '<blank>', or undefined if
  * we didn't find a valid seed based on the randomly chosen keyword
  */
-MegaHAL.prototype.seedFromKeywords = function(keywords, cb) {
+EpicHAL.prototype.seedFromKeywords = function(keywords, cb) {
   if( keywords.length === 0 ) {
     return cb(null, undefined);
   }
@@ -346,7 +346,7 @@ MegaHAL.prototype.seedFromKeywords = function(keywords, cb) {
  * Calls back with a phrase (array of normalized words)
  *
  */
-MegaHAL.prototype.phraseFromSeed = function(keywords, seed, cb) {
+EpicHAL.prototype.phraseFromSeed = function(keywords, seed, cb) {
   var glue = _.filter(seed, function(norm) { return norm !== '<fence>'; });
   var self = this;
 
@@ -382,7 +382,7 @@ MegaHAL.prototype.phraseFromSeed = function(keywords, seed, cb) {
  * Calls back with a string that is the pretty phrase, or undefined if it
  * couldn't be generated
  */
-MegaHAL.prototype.rewrite = function(norms, cb) {
+EpicHAL.prototype.rewrite = function(norms, cb) {
   var self = this;
   // Try to do this 10 times, since it may fail due to path dependency.
   // ex. We saw 'one two three' and 'ONE Two four', we can't generate the next
@@ -420,7 +420,7 @@ MegaHAL.prototype.rewrite = function(norms, cb) {
  *
  * Calls back with a string punctuated like we previously observed
  */
-MegaHAL.prototype.addPunctuationToWords = function(words, cb) {
+EpicHAL.prototype.addPunctuationToWords = function(words, cb) {
   var self = this;
   if( words.length === 0 ) {
     return cb(null, undefined);
@@ -463,7 +463,7 @@ MegaHAL.prototype.addPunctuationToWords = function(words, cb) {
  *
  * Calls back with an array of cased words
  */
-MegaHAL.prototype.wordsFromNorms = function(norms, cb) {
+EpicHAL.prototype.wordsFromNorms = function(norms, cb) {
   var self = this;
   if( typeof norms === 'undefined' || norms.length === 0 ) {
     return cb( null, [] );
@@ -507,4 +507,4 @@ MegaHAL.prototype.wordsFromNorms = function(norms, cb) {
   });
 };
 
-module.exports = MegaHAL;
+module.exports = EpicHAL;

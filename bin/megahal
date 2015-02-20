@@ -2,16 +2,16 @@
 
 'use strict';
 var readline = require('readline');
-var MegaHAL = require('../src/megahal');
+var EpicHAL = require('../src/epichal');
 var lineReader = require('line-reader');
 var path = require('path');
 
-var megaHal = MegaHAL();
+var epichal = EpicHAL();
 
 var observationFile = process.argv[2] || path.resolve(path.dirname(__filename), 'support', 'sherlock.observation');
 
 lineReader.eachLine(observationFile, function(line,last,cb) {
-  megaHal.learn(line,cb);
+  epichal.learn(line,cb);
 }).then(function() {
 
   var rl = readline.createInterface({
@@ -22,14 +22,14 @@ lineReader.eachLine(observationFile, function(line,last,cb) {
   rl.setPrompt('> ');
 
   rl.on('line', function(input) {
-    megaHal.reply(input, function(err, reply) {
+    epichal.reply(input, function(err, reply) {
       console.log(reply);
       rl.prompt();
-      megaHal.learn(input);
+      epichal.learn(input);
     });
   });
 
-  megaHal.reply('', function(err, reply) {
+  epichal.reply('', function(err, reply) {
     console.log(reply);
     rl.prompt();
   });
