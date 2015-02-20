@@ -1,5 +1,5 @@
 'use strict';
-var EpicHAL = require('./epichal');
+var EpicHAL = require('../src/epichal');
 var Url = require('url');
 var Redis = require('redis');
 
@@ -21,7 +21,7 @@ if (info.auth) {
 }
 
 var eh = EpicHAL({
-  storage: require('./storage/redis')({
+  storage: require('../src//storage/redis')({
     client: client
   })
 });
