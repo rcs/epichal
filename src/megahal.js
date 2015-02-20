@@ -3,6 +3,7 @@ var Model = require('./model');
 var Keywords = require('./keywords');
 var async = require('async');
 var _ = require('underscore');
+var tokenize = require('./tokenize').tokenize;
 
 /*
  * Glossary --
@@ -110,6 +111,7 @@ MegaHAL.prototype.models = function() {
  */
 MegaHAL.prototype.reply = function(input, cb) {
   var interestingWords = Keywords.interestingWords(input || '');
+  var inputNorms = tokenize(input || '').normalized;
 
   // Keywords -> Seeds -> Norms -> (scored) -> Cased (denormalized)  -> (Phrase) Punctuated
   // We try to generate 10 different phrases. We start the generation off each
@@ -145,12 +147,18 @@ MegaHAL.prototype.reply = function(input, cb) {
     self.phraseFromSeed.bind(self, interestingWords),
     function( phrase, cb ) {
       self.rewrite(phrase, function(err,res) {
-        if( err ) { return cb(err); }
+        /* istanbul ignore if */ if( err ) { return cb(err); }
         cb(null, {norms: phrase, rewritten: res});
       });
     }
   ), function(err, res) {
-    if( err ) { return cb(err); }
+    /* istanbul ignore if */ if( err ) { return cb(err); }
+
+    // We filter out anything that looks the same as the input
+    res = _.filter( res, function(phrase) {
+      return _.difference(phrase.norms, inputNorms).length !== 0;
+    });
+
 
     async.sortBy(res, function(phrase, cb) {
       self.scoreUtterance(interestingWords, phrase.norms, function(err, res) {
@@ -158,6 +166,7 @@ MegaHAL.prototype.reply = function(input, cb) {
       });
     }, function( err, res ) {
 
+      /* istanbul ignore if */
       if( err ) {
         console.error(err);
         return cb(null, undefined);
@@ -413,6 +422,9 @@ MegaHAL.prototype.rewrite = function(norms, cb) {
  */
 MegaHAL.prototype.addPunctuationToWords = function(words, cb) {
   var self = this;
+  if( words.length === 0 ) {
+    return cb(null, undefined);
+  }
   async.reduce(
     words.concat('<fence>'),
     {punctuation: [], context: ['<fence>','<fence>'] },

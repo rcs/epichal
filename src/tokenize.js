@@ -28,6 +28,9 @@ function compoundWords(tokens) {
 // splitInput('the fox ran down the fancy hill');
 //
 function tokenizeInput(input) {
+  if( !input ) {
+    return [];
+  }
   var tokens = input.split(/\b/);
   // Make sure we start with a non-word
   if( tokens[0].match(/\w/) ){
