@@ -1,6 +1,6 @@
 {
-  "name": "node-epichal",
-  "version": "0.0.1",
+  "name": "epichal",
+  "version": "0.1.0",
   "description": "A conversation generator for JS. Heavily inspired by MegaHAL",
   "main": "index.js",
   "scripts": {
