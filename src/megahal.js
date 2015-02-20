@@ -157,6 +157,13 @@ MegaHAL.prototype.reply = function(input, cb) {
         cb( err, -1 * res );
       });
     }, function( err, res ) {
+
+      if( err ) {
+        console.error(err);
+        return cb(null, undefined);
+      }
+
+
       /* istanbul ignore if */ if( err ) { return cb(err); }
       return cb( null, _.compact(_.pluck(res, 'rewritten'))[0] );
     });
@@ -447,7 +454,7 @@ MegaHAL.prototype.addPunctuationToWords = function(words, cb) {
 MegaHAL.prototype.wordsFromNorms = function(norms, cb) {
   var self = this;
   if( typeof norms === 'undefined' || norms.length === 0 ) {
-    return cb( [], 0 );
+    return cb( null, [] );
   }
   async.reduce( norms, {words: [] }, function(memo, norm, cb) {
     var context = [

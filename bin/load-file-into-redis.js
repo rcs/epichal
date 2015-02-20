@@ -1,16 +1,10 @@
 'use strict';
-var fs = require('fs');
-var readline = require('readline');
-var stream = require('stream');
 var MegaHAL = require('./megahal');
 var Url = require('url');
 var Redis = require('redis');
 
-console.log(process.argv);
-var instream = fs.createReadStream(process.argv[2]);
-var outstream = new stream();
+var lineReader = require('line-reader');
 
-var rl = readline.createInterface(instream, outstream);
 
 // Make it like redis brain does
 var info = Url.parse(
@@ -33,13 +27,10 @@ var mh = MegaHAL({
 });
 
 var counter = 0;
-rl.on('line', function(line) {
+lineReader.eachLine(process.argv[2], function(line,last,cb) {
   counter++;
   if( (counter % 100) === 0) {
-    console.log(counter);
+    console.error(counter);
   }
-  mh.learn(line);
+  mh.learn(line, cb);
 });
-
-
-

@@ -1,13 +1,18 @@
+#!/usr/bin/env node
+
 'use strict';
 var readline = require('readline');
 var MegaHAL = require('../src/megahal');
-var async = require('async');
-
-var sherlockSeed = require('../support/sherlock.json');
+var lineReader = require('line-reader');
+var path = require('path');
 
 var megaHal = MegaHAL();
 
-async.each(sherlockSeed, function(line, cb) { megaHal.learn(line, cb); }, function() {
+var observationFile = process.argv[2] || path.resolve(path.dirname(__filename), 'support', 'sherlock.observation');
+
+lineReader.eachLine(observationFile, function(line,last,cb) {
+  megaHal.learn(line,cb);
+}).then(function() {
 
   var rl = readline.createInterface({
     input: process.stdin,
