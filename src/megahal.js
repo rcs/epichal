@@ -4,6 +4,25 @@ var Keywords = require('./keywords');
 var async = require('async');
 var _ = require('underscore');
 
+/*
+ * Glossary --
+ *
+ * Model -- a set of behaviors wrapped around a markov chain. Things like how
+ *          to deal with input text to extract the trigrams it cares about
+ *
+ * Phrase -- an array of normalized (all caps!) words
+ *
+ * Seed -- a bigram consisting of two normalized words, used as the 'seed' or
+ *         'anchor' from which we generate a phrase. Two words so we can use it
+ *         as the context for any model querying
+ *
+ * Trigram -- A set of three things. Generally used here to interact with the
+ *            models, which always think in terms of (bigram -> seen) mappings.
+ *
+ *
+ *
+ *
+
 
 /**
  * MegaHAL - 
@@ -90,8 +109,9 @@ MegaHAL.prototype.models = function() {
  * Calls back with a string reply or `undefined` if one couldn't be generated
  */
 MegaHAL.prototype.reply = function(input, cb) {
-  var interestingWords = Keywords.interestingWords(input);
+  var interestingWords = Keywords.interestingWords(input || '');
 
+  // Keywords -> Seeds -> Norms -> (scored) -> Cased (denormalized)  -> (Phrase) Punctuated
   // We try to generate 10 different phrases. We start the generation off each
   // phrase off with a selection of keywords from the input, and an empty set.
   //
